@@ -23,8 +23,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Update npm to latest version
-RUN npm install -g npm@latest
+# Install PNPM package manager (latest version)
+RUN npm install -g pnpm@latest
 
 # Install latest Go
 RUN curl -fsSL https://go.dev/dl/go1.23.5.linux-amd64.tar.gz -o go.tar.gz \
