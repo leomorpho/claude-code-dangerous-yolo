@@ -1,0 +1,26 @@
+services:
+  claude-dev:
+    build: .
+    container_name: claude-dev-container
+    volumes:
+      # Mount Docker socket for docker-in-docker (optional)
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persist home directory for user settings
+      - claude-dev-home:/home/developer
+      # Dynamic project mount - set via PROJECT_PATH environment variable
+      - ${PROJECT_PATH:-./}:/workspace/project
+    environment:
+      - CLAUDE_UNRESTRICTED=true
+      - TERM=xterm-256color
+      # Pass through any additional environment variables
+      - PROJECT_NAME=${PROJECT_NAME:-my-project}
+    working_dir: /workspace/project
+    stdin_open: true
+    tty: true
+    # Uncomment if you need specific ports
+    # ports:
+    #   - "3000:3000"
+    #   - "8000:8000"
+
+volumes:
+  claude-dev-home:
