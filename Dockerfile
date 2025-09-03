@@ -71,5 +71,5 @@ RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc; fi' >> /home/developer/.ba
 ENV PATH="/home/developer/.local/bin:/usr/local/go/bin:$PATH"
 ENV GOPATH="/home/developer/go"
 
-# Keep container running
-CMD ["bash", "-c", "while true; do sleep 30; done"]
+# Start Claude with --dangerously-skip-permissions and keep container running
+CMD ["bash", "-c", "claude --dangerously-skip-permissions & while true; do sleep 30; done"]
