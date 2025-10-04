@@ -45,11 +45,9 @@ docker-claude-dev/
 ├── Dockerfile              # Container definition
 ├── docker-compose.yml      # Container orchestration
 ├── start-claude.sh         # Setup and start script
-├── connect.sh             # Quick connect script
-└── examples/              # Usage examples
-    ├── mount-current-dir.sh
-    ├── mount-specific-project.sh
-    └── development-workflow.sh
+├── connect.sh              # Quick connect script
+├── entrypoint.sh           # Container entrypoint
+└── claude                  # Claude wrapper script
 ```
 
 ## Usage

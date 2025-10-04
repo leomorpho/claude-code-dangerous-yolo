@@ -1,0 +1,11 @@
+# Local Claude Code settings
+.claude/
+
+# Docker volumes
+.docker/
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+*~
