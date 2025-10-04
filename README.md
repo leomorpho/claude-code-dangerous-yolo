@@ -17,10 +17,11 @@ A reusable Docker container setup for running Claude Code in unrestricted mode w
 ## What's Included
 
 - **Ubuntu 22.04** base image
-- **Claude Code CLI** installed and configured in unrestricted mode
-- **Development tools:** Python3, Node.js, npm, Git, Docker CLI, build tools
+- **Claude Code CLI** installed and configured with automatic dangerous mode (--dangerously-skip-permissions)
+- **Development tools:** Python3, PNPM, Node.js (latest), Go 1.23.5, Git, Docker CLI, uv, build tools
 - **Volume mounts** for seamless file sync between host and container
 - **Persistent home directory** to save Claude Code settings
+- **Claude wrapper** that automatically applies dangerous mode while allowing flag passthrough
 
 ## Directory Structure
 
@@ -78,6 +79,15 @@ Or manually:
 ```bash
 docker-compose exec claude-dev bash
 ```
+
+### Starting Claude Code
+Once connected to the container, start Claude:
+```bash
+claude              # Starts with --dangerously-skip-permissions automatically
+claude --resume     # Resume previous session (dangerous mode applied automatically)
+```
+
+The `claude` command is a wrapper that always includes `--dangerously-skip-permissions`, so you can pass any additional flags and they'll work as expected.
 
 ### Stopping the Environment
 ```bash
@@ -163,19 +173,14 @@ docker-compose build --no-cache
 ## Advanced Usage
 
 ### Running Claude Code commands
-Once connected to the container, first set up the PATH:
+The `claude` command is automatically available in your PATH and always runs in dangerous mode:
 ```bash
-export PATH="/home/developer/.local/bin:$PATH"
-claude --version  # Verify installation
-claude --help     # Get help
-claude chat       # Interactive chat
-claude code       # Code with Claude
+claude              # Starts Claude in dangerous mode
+claude --resume     # Resume with dangerous mode
+claude --help       # Get help (with dangerous mode)
 ```
 
-Or use the alias (if available):
-```bash
-claude  # Should work with --dangerously-skip-permissions
-```
+**Note:** The container includes a wrapper that automatically adds `--dangerously-skip-permissions` to every `claude` command, so you never need to type it manually. All additional flags are passed through correctly.
 
 ### Accessing Docker from within container
 The Docker CLI is available inside the container and can communicate with your host Docker daemon (docker-in-docker is enabled).
