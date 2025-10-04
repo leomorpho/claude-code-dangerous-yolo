@@ -58,7 +58,7 @@ RUN echo 'export CLAUDE_UNRESTRICTED=true' >> /home/developer/.bashrc && \
     echo 'export PATH="/home/developer/.local/bin:/usr/local/go/bin:$PATH"' >> /home/developer/.bashrc && \
     echo 'export GOPATH=/home/developer/go' >> /home/developer/.bashrc && \
     echo 'export PATH="$GOPATH/bin:$PATH"' >> /home/developer/.bashrc && \
-    echo 'alias claude="claude --dangerously-skip-permissions"' >> /home/developer/.bashrc
+    echo 'alias claude="/home/developer/.local/bin/claude --dangerously-skip-permissions"' >> /home/developer/.bashrc
 
 # Create Claude config directory and set up restricted permissions
 RUN mkdir -p /home/developer/.claude && \
@@ -71,5 +71,13 @@ RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc; fi' >> /home/developer/.ba
 ENV PATH="/home/developer/.local/bin:/usr/local/go/bin:$PATH"
 ENV GOPATH="/home/developer/go"
 
-# Start Claude with --dangerously-skip-permissions and keep container running
-CMD ["bash", "-c", "claude --dangerously-skip-permissions & while true; do sleep 30; done"]
+# Copy entrypoint script and claude wrapper
+COPY --chown=developer:developer entrypoint.sh /home/developer/entrypoint.sh
+COPY --chown=developer:developer claude /home/developer/.local/bin/claude-wrapper
+RUN chmod +x /home/developer/entrypoint.sh && \
+    chmod +x /home/developer/.local/bin/claude-wrapper && \
+    mv /home/developer/.local/bin/claude /home/developer/.local/bin/claude-original && \
+    mv /home/developer/.local/bin/claude-wrapper /home/developer/.local/bin/claude
+
+# Use entrypoint script that allows passing additional flags like --resume
+ENTRYPOINT ["/home/developer/entrypoint.sh"]

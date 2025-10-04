@@ -1,0 +1,3 @@
+#!/bin/bash
+# Wrapper script that always uses dangerous mode
+exec /home/developer/.local/bin/claude --dangerously-skip-permissions "$@"
