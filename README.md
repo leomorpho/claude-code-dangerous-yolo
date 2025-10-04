@@ -2,6 +2,19 @@
 
 A reusable Docker container setup for running Claude Code in unrestricted mode with any project directory mounted and synced.
 
+## Why Run Claude in a Docker Sandbox? 🔒
+
+Running Claude with `--dangerously-skip-permissions` is like giving a hyperintelligent AI the keys to your entire machine. Sure, it's *probably* fine, but do you really want to find out what "probably" means when Claude decides your `/etc` directory needs "refactoring"?
+
+**This Docker setup lets you:**
+- Give Claude full unrestricted access... to a sandbox 🏖️
+- Watch it `rm -rf` to its heart's content (inside the container)
+- Sleep soundly knowing your host system remains untouched
+- Easily nuke and rebuild if Claude gets too creative with system files
+- Avoid awkward conversations about why your production database is now in `/tmp`
+
+Think of it as a padded room for AI experimentation. Claude gets to feel free and powerful, while your actual machine stays safe from "helpful" system-level optimizations.
+
 ## Quick Start
 
 1. **Copy this directory anywhere on your system**
@@ -13,6 +26,8 @@ A reusable Docker container setup for running Claude Code in unrestricted mode w
    ```bash
    ./connect.sh
    ```
+
+**Multiple Projects:** You can run multiple containers simultaneously, each working on different projects. Each container is isolated with its own settings and state.
 
 ## What's Included
 
@@ -73,11 +88,12 @@ This will:
 
 ### Connecting to Claude Code
 ```bash
-./connect.sh
+./connect.sh                  # Connects to container for current directory
+./connect.sh project-name     # Connects to specific project container
 ```
 Or manually:
 ```bash
-docker-compose exec claude-dev bash
+docker exec -it claude-dev-project-name bash
 ```
 
 ### Starting Claude Code
@@ -90,8 +106,13 @@ claude --resume     # Resume previous session (dangerous mode applied automatica
 The `claude` command is a wrapper that always includes `--dangerously-skip-permissions`, so you can pass any additional flags and they'll work as expected.
 
 ### Stopping the Environment
+Stop a specific project:
 ```bash
-docker-compose down
+docker stop claude-dev-project-name
+```
+Stop all Claude containers:
+```bash
+docker stop $(docker ps -q --filter "name=claude-dev-")
 ```
 
 ### Rebuilding the Container
@@ -144,6 +165,18 @@ Copy the `docker-claude-dev/` directory to any location and use it to work on an
 ```bash
 cp -r docker-claude-dev ~/tools/
 ~/tools/docker-claude-dev/start-claude.sh ~/workspace/any-project
+```
+
+### Multiple Projects Simultaneously
+Run different containers for different projects:
+```bash
+./start-claude.sh ~/workspace/frontend
+./start-claude.sh ~/workspace/backend
+./start-claude.sh ~/workspace/mobile-app
+
+# Connect to specific projects
+./connect.sh frontend
+./connect.sh backend
 ```
 
 ## Troubleshooting

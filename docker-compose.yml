@@ -1,12 +1,12 @@
 services:
   claude-dev:
     build: .
-    container_name: claude-dev-container
+    container_name: claude-dev-${PROJECT_NAME:-my-project}
     volumes:
       # Mount Docker socket for docker-in-docker (optional)
       - /var/run/docker.sock:/var/run/docker.sock
-      # Persist home directory for user settings
-      - claude-dev-home:/home/developer
+      # Persist home directory for user settings (project-specific)
+      - claude-dev-home-${PROJECT_NAME:-my-project}:/home/developer
       # Dynamic project mount - set via PROJECT_PATH environment variable
       - ${PROJECT_PATH:-./}:/workspace/project
     environment:
@@ -23,4 +23,4 @@ services:
     #   - "8000:8000"
 
 volumes:
-  claude-dev-home:
+  claude-dev-home-${PROJECT_NAME:-my-project}:

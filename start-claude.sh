@@ -102,21 +102,26 @@ fi
 export PROJECT_PATH
 export PROJECT_NAME
 
+# Use project-specific docker-compose project name to allow multiple instances
+COMPOSE_PROJECT_NAME="claude-dev-${PROJECT_NAME}"
+export COMPOSE_PROJECT_NAME
+
 # Build the container if it doesn't exist or if Dockerfile changed
 if [[ ! "$(docker images -q claude-dev 2> /dev/null)" ]] || [[ Dockerfile -nt "$(docker inspect -f '{{.Created}}' claude-dev 2>/dev/null || echo '1970-01-01')" ]]; then
     echo -e "${BLUE}🔨 Building Claude Code container...${NC}"
-    docker-compose build
+    docker-compose -p "$COMPOSE_PROJECT_NAME" build
 fi
 
-# Stop existing container if running
-if [[ "$(docker ps -q -f name=claude-dev-container)" ]]; then
-    echo -e "${YELLOW}🔄 Stopping existing container...${NC}"
-    docker-compose down
+# Stop existing container for this specific project if running
+CONTAINER_NAME="claude-dev-${PROJECT_NAME}"
+if [[ "$(docker ps -q -f name=${CONTAINER_NAME})" ]]; then
+    echo -e "${YELLOW}🔄 Stopping existing container for ${PROJECT_NAME}...${NC}"
+    docker-compose -p "$COMPOSE_PROJECT_NAME" down
 fi
 
 # Start the container
 echo -e "${BLUE}🚀 Starting Claude Code container...${NC}"
-docker-compose up -d
+docker-compose -p "$COMPOSE_PROJECT_NAME" up -d
 
 # Wait a moment for the container to be ready
 sleep 2
@@ -131,17 +136,17 @@ if [[ "$INTERACTIVE" == true ]]; then
     echo -e "${BLUE}🔗 Connecting to Claude Code environment...${NC}"
     echo -e "${BLUE}Happy coding with Claude! 🤖${NC}"
     echo ""
-    
+
     # Connect to the container interactively
-    docker-compose exec claude-dev bash -l
+    docker-compose -p "$COMPOSE_PROJECT_NAME" exec claude-dev bash -l
 else
     echo "Container running in background."
     echo ""
     echo "To connect to the Claude Code environment, run:"
-    echo -e "${GREEN}./connect.sh${NC}"
+    echo -e "${GREEN}./connect.sh $PROJECT_NAME${NC}"
     echo ""
     echo "Or manually:"
-    echo -e "${GREEN}docker-compose exec claude-dev bash${NC}"
+    echo -e "${GREEN}docker exec -it claude-dev-${PROJECT_NAME} bash${NC}"
     echo ""
     echo -e "${BLUE}Happy coding with Claude! 🤖${NC}"
 fi
