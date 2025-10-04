@@ -5,8 +5,8 @@ services:
     volumes:
       # Mount Docker socket for docker-in-docker (optional)
       - /var/run/docker.sock:/var/run/docker.sock
-      # Persist home directory for user settings (project-specific)
-      - claude-dev-home-${PROJECT_NAME:-my-project}:/home/developer
+      # Persist home directory for user settings (project-specific named volume)
+      - claude-dev-home:/home/developer
       # Dynamic project mount - set via PROJECT_PATH environment variable
       - ${PROJECT_PATH:-./}:/workspace/project
     environment:
@@ -23,4 +23,4 @@ services:
     #   - "8000:8000"
 
 volumes:
-  claude-dev-home-${PROJECT_NAME:-my-project}:
+  claude-dev-home:
