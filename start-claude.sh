@@ -106,27 +106,26 @@ export PROJECT_NAME
 COMPOSE_PROJECT_NAME="claude-dev-${PROJECT_NAME}"
 export COMPOSE_PROJECT_NAME
 
-# Build the container if it doesn't exist or if Dockerfile changed
-if [[ ! "$(docker images -q claude-dev 2> /dev/null)" ]] || [[ Dockerfile -nt "$(docker inspect -f '{{.Created}}' claude-dev 2>/dev/null || echo '1970-01-01')" ]]; then
-    echo -e "${BLUE}🔨 Building Claude Code container...${NC}"
-    docker-compose -p "$COMPOSE_PROJECT_NAME" build
-fi
-
-# Stop existing container for this specific project if running
+# Check if container is already running
 CONTAINER_NAME="claude-dev-${PROJECT_NAME}"
 if [[ "$(docker ps -q -f name=${CONTAINER_NAME})" ]]; then
-    echo -e "${YELLOW}🔄 Stopping existing container for ${PROJECT_NAME}...${NC}"
-    docker-compose -p "$COMPOSE_PROJECT_NAME" down
+    echo -e "${GREEN}✅ Container already running, reusing existing container!${NC}"
+else
+    # Build the container if it doesn't exist or if Dockerfile changed
+    if [[ ! "$(docker images -q claude-dev 2> /dev/null)" ]] || [[ Dockerfile -nt "$(docker inspect -f '{{.Created}}' claude-dev 2>/dev/null || echo '1970-01-01')" ]]; then
+        echo -e "${BLUE}🔨 Building Claude Code container...${NC}"
+        docker-compose -p "$COMPOSE_PROJECT_NAME" build
+    fi
+
+    # Start the container
+    echo -e "${BLUE}🚀 Starting Claude Code container...${NC}"
+    docker-compose -p "$COMPOSE_PROJECT_NAME" up -d
+
+    # Wait a moment for the container to be ready
+    sleep 2
+
+    echo -e "${GREEN}✅ Container started successfully!${NC}"
 fi
-
-# Start the container
-echo -e "${BLUE}🚀 Starting Claude Code container...${NC}"
-docker-compose -p "$COMPOSE_PROJECT_NAME" up -d
-
-# Wait a moment for the container to be ready
-sleep 2
-
-echo -e "${GREEN}✅ Container started successfully!${NC}"
 echo ""
 echo "Your project is mounted at:"
 echo -e "${GREEN}  $PROJECT_PATH → /workspace/project${NC}"
