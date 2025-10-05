@@ -53,16 +53,10 @@ RUN curl -fsSL https://claude.ai/install.sh | HOME=/home/developer bash
 # Install uv for Python package management as developer user
 RUN curl -LsSf https://astral.sh/uv/install.sh | HOME=/home/developer sh
 
-# Set up Claude Code in unrestricted mode and ensure it's in PATH
-RUN echo 'export CLAUDE_UNRESTRICTED=true' >> /home/developer/.bashrc && \
-    echo 'export PATH="/home/developer/.local/bin:/usr/local/go/bin:$PATH"' >> /home/developer/.bashrc && \
+# Set up environment variables for PATH
+RUN echo 'export PATH="/home/developer/.local/bin:/usr/local/go/bin:$PATH"' >> /home/developer/.bashrc && \
     echo 'export GOPATH=/home/developer/go' >> /home/developer/.bashrc && \
-    echo 'export PATH="$GOPATH/bin:$PATH"' >> /home/developer/.bashrc && \
-    echo 'alias claude="/home/developer/.local/bin/claude --dangerously-skip-permissions"' >> /home/developer/.bashrc
-
-# Create Claude config directory and set up restricted permissions
-RUN mkdir -p /home/developer/.claude && \
-    echo '{"permissions": {"allow": ["*"], "deny": [], "ask": []}, "additionalDirectories": ["/workspace/project"]}' > /home/developer/.claude/config.json
+    echo 'export PATH="$GOPATH/bin:$PATH"' >> /home/developer/.bashrc
 
 # Ensure the PATH is set for interactive shells
 RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc; fi' >> /home/developer/.bash_profile
@@ -71,13 +65,9 @@ RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc; fi' >> /home/developer/.ba
 ENV PATH="/home/developer/.local/bin:/usr/local/go/bin:$PATH"
 ENV GOPATH="/home/developer/go"
 
-# Copy entrypoint script and claude wrapper
+# Copy entrypoint script
 COPY --chown=developer:developer entrypoint.sh /home/developer/entrypoint.sh
-COPY --chown=developer:developer claude /home/developer/.local/bin/claude-wrapper
-RUN chmod +x /home/developer/entrypoint.sh && \
-    chmod +x /home/developer/.local/bin/claude-wrapper && \
-    mv /home/developer/.local/bin/claude /home/developer/.local/bin/claude-original && \
-    mv /home/developer/.local/bin/claude-wrapper /home/developer/.local/bin/claude
+RUN chmod +x /home/developer/entrypoint.sh
 
 # Use entrypoint script that allows passing additional flags like --resume
 ENTRYPOINT ["/home/developer/entrypoint.sh"]

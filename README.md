@@ -32,11 +32,11 @@ Think of it as a padded room for AI experimentation. Claude gets to feel free an
 ## What's Included
 
 - **Ubuntu 22.04** base image
-- **Claude Code CLI** installed and configured with automatic dangerous mode (--dangerously-skip-permissions)
+- **Claude Code CLI** installed and synced with your host configuration
 - **Development tools:** Python3, PNPM, Node.js (latest), Go 1.23.5, Git, Docker CLI, uv, build tools
 - **Volume mounts** for seamless file sync between host and container
 - **Persistent home directory** to save Claude Code settings
-- **Claude wrapper** that automatically applies dangerous mode while allowing flag passthrough
+- **Shared .claude directory** - your auth and settings sync automatically
 
 ## Directory Structure
 
@@ -46,8 +46,7 @@ docker-claude-dev/
 ├── docker-compose.yml      # Container orchestration
 ├── start-claude.sh         # Setup and start script
 ├── connect.sh              # Quick connect script
-├── entrypoint.sh           # Container entrypoint
-└── claude                  # Claude wrapper script
+└── entrypoint.sh           # Container entrypoint
 ```
 
 ## Usage
@@ -95,13 +94,14 @@ docker exec -it claude-dev-project-name bash
 ```
 
 ### Starting Claude Code
-Once connected to the container, start Claude:
+Once connected to the container, start Claude normally:
 ```bash
-claude              # Starts with --dangerously-skip-permissions automatically
-claude --resume     # Resume previous session (dangerous mode applied automatically)
+claude                                             # Start Claude
+claude --dangerously-skip-permissions              # Start in dangerous mode
+claude --resume                                    # Resume previous session
 ```
 
-The `claude` command is a wrapper that always includes `--dangerously-skip-permissions`, so you can pass any additional flags and they'll work as expected.
+**Note:** Your host `.claude` directory is mounted, so auth and settings are shared automatically.
 
 ### Stopping the Environment
 Stop a specific project:
@@ -204,14 +204,14 @@ docker-compose build --no-cache
 ## Advanced Usage
 
 ### Running Claude Code commands
-The `claude` command is automatically available in your PATH and always runs in dangerous mode:
+The `claude` command is automatically available in your PATH:
 ```bash
-claude              # Starts Claude in dangerous mode
-claude --resume     # Resume with dangerous mode
-claude --help       # Get help (with dangerous mode)
+claude                                             # Start Claude normally
+claude --dangerously-skip-permissions              # Start in dangerous mode
+claude --resume                                    # Resume previous session
 ```
 
-**Note:** The container includes a wrapper that automatically adds `--dangerously-skip-permissions` to every `claude` command, so you never need to type it manually. All additional flags are passed through correctly.
+**Note:** Your `.claude` directory from the host is mounted into the container, so all your auth and settings are automatically available.
 
 ### Accessing Docker from within container
 The Docker CLI is available inside the container and can communicate with your host Docker daemon (docker-in-docker is enabled).

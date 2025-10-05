@@ -5,12 +5,11 @@ services:
     volumes:
       # Mount Docker socket for docker-in-docker (optional)
       - /var/run/docker.sock:/var/run/docker.sock
-      # Persist home directory for user settings (project-specific named volume)
-      - claude-dev-home:/home/developer
+      # Mount host Claude directory for auth and config sharing
+      - ${HOME}/.claude:/home/developer/.claude
       # Dynamic project mount - set via PROJECT_PATH environment variable
       - ${PROJECT_PATH:-./}:/workspace/project
     environment:
-      - CLAUDE_UNRESTRICTED=true
       - TERM=xterm-256color
       # Pass through any additional environment variables
       - PROJECT_NAME=${PROJECT_NAME:-my-project}
