@@ -134,11 +134,11 @@ echo ""
 
 if [[ "$INTERACTIVE" == true ]]; then
     echo -e "${BLUE}🔗 Connecting to Claude Code environment...${NC}"
-    echo -e "${BLUE}Happy coding with Claude! 🤖${NC}"
+    echo -e "${BLUE}Starting Claude in dangerous mode...${NC}"
     echo ""
 
-    # Connect to the container interactively
-    docker-compose -p "$COMPOSE_PROJECT_NAME" exec claude-dev bash -l
+    # Connect to the container and start Claude automatically
+    docker-compose -p "$COMPOSE_PROJECT_NAME" exec claude-dev claude --dangerously-skip-permissions
 else
     echo "Container running in background."
     echo ""

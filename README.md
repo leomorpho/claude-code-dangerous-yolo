@@ -8,6 +8,7 @@ Running Claude with `--dangerously-skip-permissions` is like giving a hyperintel
 
 **This Docker setup lets you:**
 - Give Claude full unrestricted access... to a sandbox 🏖️
+- Automatically starts in dangerous mode - no permission prompts!
 - Watch it `rm -rf` to its heart's content (inside the container)
 - Sleep soundly knowing your host system remains untouched
 - Easily nuke and rebuild if Claude gets too creative with system files
@@ -94,11 +95,16 @@ docker exec -it claude-dev-project-name bash
 ```
 
 ### Starting Claude Code
-Once connected to the container, start Claude normally:
+Claude starts automatically in dangerous mode when you connect! Just run:
 ```bash
-claude                                             # Start Claude
-claude --dangerously-skip-permissions              # Start in dangerous mode
-claude --resume                                    # Resume previous session
+./start-claude.sh /path/to/project    # Auto-starts Claude in dangerous mode
+# OR
+./connect.sh project-name              # Also auto-starts Claude
+```
+
+To use bash instead of Claude:
+```bash
+docker exec -it claude-dev-project-name bash
 ```
 
 **Note:** Your host `.claude` directory is mounted, so auth and settings are shared automatically.
